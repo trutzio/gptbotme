@@ -7,7 +7,7 @@ from tweets_stream import TweetsStream
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.ERROR)
     start_http_server(8000)
     tweets_stream = TweetsStream(openai_service=OpenAIService())
     tweets_stream.filter()

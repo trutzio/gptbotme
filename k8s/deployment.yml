@@ -4,7 +4,7 @@ metadata:
   name: gptbotme
   namespace: gptbotme
   labels:
-    k8s-app: gptbotme  
+    k8s-app: gptbotme
 spec:
   replicas: 1
   selector:
@@ -25,16 +25,19 @@ spec:
                 path: prometheus.yml
       containers:
         - name: prometheus
-          image: prom/prometheus:latest
+          image: prom/prometheus:v2.42.0
           ports:
             - containerPort: 9090
           volumeMounts:
             - name: config
               mountPath: "/etc/prometheus"
               readOnly: true
-          resources: {}
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
         - name: gptbotme
-          image: ctsc/gptbotme:1.0.3
+          image: ctsc/gptbotme:1.0.5
           ports:
             - containerPort: 8000
           env:
@@ -74,5 +77,8 @@ spec:
                   name: gptbotme
                   key: OPENAI_API_KEY
                   optional: false
-          resources: {}
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
       restartPolicy: Always
