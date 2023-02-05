@@ -1,11 +1,16 @@
 import os
 
 import tweepy
+from prometheus_client import Counter, Summary
 
 from openai_service import OpenAIService
 
 __bot_name__ = '@gptbotme'
 __max_tweet_len__ = 280
+
+ON_TWEET = Summary('gptbotme_on_tweet',
+                   'Summary für die Bearbeitung von Tweets')
+TWEETS = Counter('gptbotme_tweets', 'Anzahl der gesendeten Tweets')
 
 
 class TweetsStream(tweepy.StreamingClient):
@@ -24,6 +29,7 @@ class TweetsStream(tweepy.StreamingClient):
                                             consumer_secret=consumer_secret, access_token=access_token, access_token_secret=access_token_secret)
         super().__init__(bearer_token=bearer_token)
 
+    @ON_TWEET.time()
     def on_tweet(self, tweet):
         if __bot_name__ in tweet.text:
             prompt = tweet.text.replace(__bot_name__, '')
@@ -35,6 +41,7 @@ class TweetsStream(tweepy.StreamingClient):
         for tweet_text in self.split(answer):
             answer_tweet = self.twitter_client.create_tweet(
                 in_reply_to_tweet_id=last_tweet_id, text=tweet_text)
+            TWEETS.inc()    
             last_tweet_id = answer_tweet.data['id']
 
     def split(self, answer: str) -> list:

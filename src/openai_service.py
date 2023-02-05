@@ -1,6 +1,10 @@
 import os
 
 import openai
+from prometheus_client import Summary
+
+OPENAI_ANSWER = Summary('gptbotme_openai_answer',
+                        'Summary für die Antwort von openai')
 
 
 class OpenAIService():
@@ -8,6 +12,7 @@ class OpenAIService():
     def __init__(self) -> None:
         openai.api_key = os.getenv("OPENAI_API_KEY")
 
+    @OPENAI_ANSWER.time()
     def answer(self, prompt: str) -> str:
         # see also https://platform.openai.com/docs/api-reference/completions
         text_completion = openai.Completion.create(

@@ -1,11 +1,13 @@
 import logging
 
+from prometheus_client import start_http_server
+
 from openai_service import OpenAIService
 from tweets_stream import TweetsStream
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     tweets_stream = TweetsStream(openai_service=OpenAIService())
     tweets_stream.filter()
 
