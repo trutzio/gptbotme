@@ -1,0 +1,78 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: gptbotme
+  namespace: gptbotme
+  labels:
+    k8s-app: gptbotme  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: gptbotme
+  template:
+    metadata:
+      name: gptbotme
+      labels:
+        k8s-app: gptbotme
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: gptbotme
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml
+      containers:
+        - name: prometheus
+          image: prom/prometheus:latest
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/prometheus"
+              readOnly: true
+          resources: {}
+        - name: gptbotme
+          image: ctsc/gptbotme:1.0.3
+          ports:
+            - containerPort: 8000
+          env:
+            - name: CONSUMER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gptbotme
+                  key: CONSUMER_KEY
+                  optional: false
+            - name: CONSUMER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: gptbotme
+                  key: CONSUMER_SECRET
+                  optional: false
+            - name: ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gptbotme
+                  key: ACCESS_TOKEN
+                  optional: false
+            - name: ACCESS_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: gptbotme
+                  key: ACCESS_TOKEN_SECRET
+                  optional: false
+            - name: BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gptbotme
+                  key: BEARER_TOKEN
+                  optional: false
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gptbotme
+                  key: OPENAI_API_KEY
+                  optional: false
+          resources: {}
+      restartPolicy: Always
