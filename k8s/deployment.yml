@@ -79,6 +79,6 @@ spec:
                   optional: false
           resources:
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "1024Mi"
+              cpu: "512m"
       restartPolicy: Always
